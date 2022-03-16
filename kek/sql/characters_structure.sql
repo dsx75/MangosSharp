@@ -158,9 +158,16 @@ CREATE TABLE `characters_mail` (
   `mail_COD` smallint(6) NOT NULL DEFAULT '0',
   `mail_time` int(6) NOT NULL DEFAULT '30',
   `mail_read` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `item_guid` bigint(20) NOT NULL,
+  `item_guid` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`mail_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+
+/* Mail items */
+CREATE TABLE `mail_items` (
+  `mail_id` int(11) NULL DEFAULT NULL,
+  `item_guid` int(11) NULL DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Mail System';
 
 
 /* Pet */
