@@ -40,13 +40,23 @@ public static class Extractors
 
     public static void ExtractUpdateFields()
     {
+        ExtractUpdateFields("", "");
+    }
+
+    public static void ExtractUpdateFields(string wowDir, string outputDir)
+    {
+        var wowClient = Path.Combine(wowDir, "wow.exe");
+
         var TBC = 0;
         var alpha = 0;
-        FileVersionInfo versInfo = FileVersionInfo.GetVersionInfo("Wow.exe");
-        FileStream f = new("wow.exe", FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        FileVersionInfo versInfo = FileVersionInfo.GetVersionInfo(wowClient);
+        FileStream f = new(wowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
         BinaryReader r1 = new(f);
         StreamReader r2 = new(f);
-        FileStream o = new(versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart + "." + versInfo.FilePrivatePart + "_Global.UpdateFields.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+
+        var outputFile = versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart + "." + versInfo.FilePrivatePart + "_Global.UpdateFields.cs";
+        outputFile = Path.Combine(outputDir, outputFile);
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
         var FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_PAD");
         var OBJECT_FIELD_GUID = Utils.SearchInFile(f, "OBJECT_FIELD_GUID") + 0x400000;
@@ -247,10 +257,19 @@ public static class Extractors
 
     public static void ExtractOpcodes()
     {
-        FileStream f = new("wow.exe", FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        ExtractOpcodes("", "");
+    }
+
+    public static void ExtractOpcodes(string wowDir, string outputDir)
+    {
+        var wowClient = Path.Combine(wowDir, "wow.exe");
+
+        FileStream f = new(wowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
         BinaryReader r1 = new(f);
         StreamReader r2 = new(f);
-        FileStream o = new("Global.Opcodes.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+
+        var outputFile = Path.Combine(outputDir, "Global.Opcodes.cs");
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
         logger.Debug(Utils.ReadString(f, Utils.SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")));
         var START = Utils.SearchInFile(f, "NUM_MSG_TYPES");
@@ -292,10 +311,19 @@ public static class Extractors
 
     public static void ExtractSpellFailedReason()
     {
-        FileStream f = new("wow.exe", FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        ExtractSpellFailedReason("", "");
+    }
+
+    public static void ExtractSpellFailedReason(string wowDir, string outputDir)
+    {
+        var wowClient = Path.Combine(wowDir, "wow.exe");
+
+        FileStream f = new(wowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
         BinaryReader r1 = new(f);
         StreamReader r2 = new(f);
-        FileStream o = new("Global.SpellFailedReasons.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+
+        var outputFile = Path.Combine(outputDir, "Global.SpellFailedReasons.cs");
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
         var REASON_NAME_OFFSET = Utils.SearchInFile(f, "SPELL_FAILED_UNKNOWN");
         if (REASON_NAME_OFFSET == -1)
@@ -341,10 +369,19 @@ public static class Extractors
 
     public static void ExtractChatTypes()
     {
-        FileStream f = new("wow.exe", FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        ExtractChatTypes("", "");
+    }
+
+    public static void ExtractChatTypes(string wowDir, string outputDir)
+    {
+        var wowClient = Path.Combine(wowDir, "wow.exe");
+
+        FileStream f = new(wowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
         BinaryReader r1 = new(f);
         StreamReader r2 = new(f);
-        FileStream o = new("Global.ChatTypes.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+
+        var outputFile = Path.Combine(outputDir, "Global.ChatTypes.cs");
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
         var START = Utils.SearchInFile(f, "CHAT_MSG_RAID_WARNING");
         if (START == -1)
