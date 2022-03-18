@@ -91,7 +91,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mangos.Tools.Common", "Mang
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mangos.Tools.Extractor", "Mangos.Tools.Extractor\Mangos.Tools.Extractor.csproj", "{077FE692-FD85-4FFC-9B0F-175FFD3FC610}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mangos.Tools.Extractors", "Mangos.Tools.Extractors\Mangos.Tools.Extractors.csproj", "{02CF6CD1-F1C0-4690-A57C-1C5A3CA5C1DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mangos.Tools.Extractors", "Mangos.Tools.Extractors\Mangos.Tools.Extractors.csproj", "{02CF6CD1-F1C0-4690-A57C-1C5A3CA5C1DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extractor", "Extractor\Extractor.csproj", "{6A3BBB13-ABF2-44D0-ADBF-A0CA55C0CDC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -227,6 +229,10 @@ Global
 		{02CF6CD1-F1C0-4690-A57C-1C5A3CA5C1DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02CF6CD1-F1C0-4690-A57C-1C5A3CA5C1DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02CF6CD1-F1C0-4690-A57C-1C5A3CA5C1DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A3BBB13-ABF2-44D0-ADBF-A0CA55C0CDC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A3BBB13-ABF2-44D0-ADBF-A0CA55C0CDC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A3BBB13-ABF2-44D0-ADBF-A0CA55C0CDC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A3BBB13-ABF2-44D0-ADBF-A0CA55C0CDC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -271,6 +277,7 @@ Global
 		{C0958A22-9014-4CE5-BCCB-4D4869BBC5D4} = {86D392EB-75DF-4211-A482-1F826079BC6B}
 		{077FE692-FD85-4FFC-9B0F-175FFD3FC610} = {86D392EB-75DF-4211-A482-1F826079BC6B}
 		{02CF6CD1-F1C0-4690-A57C-1C5A3CA5C1DA} = {86D392EB-75DF-4211-A482-1F826079BC6B}
+		{6A3BBB13-ABF2-44D0-ADBF-A0CA55C0CDC3} = {86D392EB-75DF-4211-A482-1F826079BC6B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ADB1D01A-F2D8-411D-8C5E-9B125F8FE64E}
