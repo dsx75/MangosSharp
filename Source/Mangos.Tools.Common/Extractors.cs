@@ -426,4 +426,13 @@ public static class Extractors
         o.Close();
         f.Close();
     }
+
+    public static int SearchInFile(string file, string s)
+    {
+        FileStream f = new(file, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        var result = Utils.SearchInFile(f, s, 0);
+        f.Close();
+        return result;
+    }
+
 }
