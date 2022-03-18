@@ -33,6 +33,7 @@ internal abstract class ExtractorBase : IExtractor
     protected readonly string _wowClient;
     protected readonly FileVersionInfo _wowClientVersion;
     protected readonly string _outputDirectory;
+    protected readonly string _wowDataDirectory;
 
     internal ExtractorBase(string wowDirectory, string wowClient, FileVersionInfo wowClientVersion, string outputDirectory)
     {
@@ -40,6 +41,7 @@ internal abstract class ExtractorBase : IExtractor
         _wowClient = wowClient;
         _wowClientVersion = wowClientVersion;
         _outputDirectory = outputDirectory;
+        _wowDataDirectory = Path.Combine(_wowDirectory, "Data");
     }
 
     public string WowDirectory => _wowDirectory;

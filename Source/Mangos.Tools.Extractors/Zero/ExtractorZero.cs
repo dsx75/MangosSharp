@@ -96,7 +96,7 @@ internal class ExtractorZero : ExtractorBase
 
     public override void ExtractDbcFiles()
     {
-        throw new NotImplementedException();
+        new DbcExtractor(_wowDataDirectory, _outputDirectory).Run();
     }
 
     public override void ExtractOpCodes()

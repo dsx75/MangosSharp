@@ -51,6 +51,9 @@ public class Program
         logger.Info("Extracting Update Fields");
         extractor.ExtractUpdateFields();
 
+        logger.Info("Extracting DBC Files");
+        extractor.ExtractDbcFiles();
+
         logger.Info("DONE");
     }
 }
