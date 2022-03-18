@@ -38,17 +38,6 @@ public static class Extractors
         public int Flags;
     }
 
-    private enum Types
-    {
-        NULL,
-        Int32,
-        Chars,
-        Float,
-        GUID,
-        Bytes,
-        NULL2
-    }
-
     public static void ExtractUpdateFields()
     {
         var TBC = 0;
