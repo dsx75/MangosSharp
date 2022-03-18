@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Mangos.Tools.Extractors</AssemblyName>
+    <RootNamespace>Mangos.Tools.Extractors</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Two\" />
+    <Folder Include="Zero\" />
+  </ItemGroup>
+
+</Project>
