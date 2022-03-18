@@ -22,6 +22,10 @@ using System;
 using System.Text;
 
 namespace Mangos.Tools.Common;
+
+/// <summary>
+/// Helper methods used by Extractors.
+/// </summary>
 internal static class Utils
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();

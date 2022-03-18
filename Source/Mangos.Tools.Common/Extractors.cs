@@ -24,6 +24,9 @@ using System.Runtime.InteropServices;
 
 namespace Mangos.Tools.Common;
 
+/// <summary>
+/// Public methods for extracting data from WoW client.
+/// </summary>
 public static class Extractors
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
