@@ -22,16 +22,21 @@ using System;
 
 namespace Mangos.Tools.Extractors.Zero;
 
+/// <summary>
+/// DBC extractor by UniX
+/// </summary>
 internal class DbcExtractor
 {
     private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
     private readonly List<MpqArchive> MPQArchives = new();
-    private readonly List<int> MapIDs = new();
-    private readonly List<string> MapNames = new();
-    private readonly Dictionary<int, int> MapAreas = new();
-    private readonly int MaxAreaID = -1;
-    private readonly Dictionary<int, int> MapLiqTypes = new();
+
+    // TODO these seem to be some leftovers from an unfinished attempt to extract maps?
+    //private readonly List<int> MapIDs = new();
+    //private readonly List<string> MapNames = new();
+    //private readonly Dictionary<int, int> MapAreas = new();
+    //private readonly int MaxAreaID = -1;
+    //private readonly Dictionary<int, int> MapLiqTypes = new();
 
     // input directory
     private readonly string _dataDirectory;
@@ -40,26 +45,21 @@ internal class DbcExtractor
     private readonly string _dbcDirectory;
 
     // TODO is this needed?
-    private readonly string _mapsDirectory;
+    //private readonly string _mapsDirectory;
 
     internal DbcExtractor(string dataDirectory, string outputDirectory)
     {
         _dataDirectory = dataDirectory;
         _dbcDirectory = Path.Combine(outputDirectory, "dbc");
-        _mapsDirectory = Path.Combine(outputDirectory, "maps");
+        //_mapsDirectory = Path.Combine(outputDirectory, "maps");
     }
 
     internal void Run()
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("DBC extractor by UniX");
-        Console.WriteLine("-----------------------------");
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Red;
+        logger.Info("DBC extractor by UniX");
         if (!Directory.Exists(_dataDirectory))
         {
-            Console.WriteLine("No data folder is found. Make sure this extractor is put in your World of Warcraft directory.");
-            goto ExitNow;
+            throw new DirectoryNotFoundException("Data directory not found: " + _dataDirectory);
         }
 
         List<string> MPQFilesToOpen = new() { "terrain.MPQ", "dbc.MPQ", "misc.MPQ", "patch.MPQ", "patch-2.MPQ" };
@@ -68,38 +68,29 @@ internal class DbcExtractor
             var file = Path.Combine(_dataDirectory, mpq);
             if (!File.Exists(file))
             {
-                Console.WriteLine("Missing [{0}]. Make sure this extractor is put in your World of Warcraft directory.", mpq);
-                goto ExitNow;
+                throw new FileNotFoundException("File not found: " + mpq);
             }
         }
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
         foreach (var mpq in MPQFilesToOpen)
         {
             var file = Path.Combine(_dataDirectory, mpq);
             var stream = File.Open(Path.GetFullPath(file), FileMode.Open);
             MpqArchive newArchive = new(stream, true);
             MPQArchives.Add(newArchive);
-            Console.WriteLine("Loaded archive [{0}].", mpq);
+            logger.Info("Loaded archive " + mpq);
         }
 
         try
         {
             Directory.CreateDirectory(_dbcDirectory);
-            Directory.CreateDirectory(_mapsDirectory);
-            Console.WriteLine("Created extract folders.");
-        }
-        catch (UnauthorizedAccessException)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Unable to create extract folders, you don't seem to have admin rights.");
-            goto ExitNow;
+            //Directory.CreateDirectory(_mapsDirectory);
+            logger.Info("Output directory created.");
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Unable to create extract folders. Error: " + ex.Message);
-            goto ExitNow;
+            logger.Error(ex, "Unable to create output directory " + _dbcDirectory);
+            throw;
         }
 
         try
@@ -108,32 +99,22 @@ internal class DbcExtractor
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Unable to extract DBC Files. Error: " + ex.Message);
+            logger.Error(ex, "Unable to extract DBC Files.");
+            throw;
         }
 
-    // Try
-    // ExtractMaps()
-    // Catch ex As Exception
-    // Console.ForegroundColor = ConsoleColor.Red
-    // Console.WriteLine("Unable to extract Maps. Error: " & ex.Message)
-    // GoTo ExitNow
-    // End Try
-
-    ExitNow:
-        ;
-        //Console.ForegroundColor = ConsoleColor.DarkMagenta;
-        //Console.WriteLine();
-        //Console.WriteLine("Press any key to continue...");
-        //Console.ReadKey();
+        // Try
+        // ExtractMaps()
+        // Catch ex As Exception
+        // Console.ForegroundColor = ConsoleColor.Red
+        // Console.WriteLine("Unable to extract Maps. Error: " & ex.Message)
+        // GoTo ExitNow
+        // End Try
     }
 
     private void ExtractDBCs()
     {
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("Extracting DBC Files");
-        Console.ForegroundColor = ConsoleColor.Gray;
+        logger.Info("Extracting DBC Files");
         var dbcFolder = Path.GetFullPath(_dbcDirectory);
         var numDBCs = 0;
         foreach (var mpqArchive in MPQArchives)
@@ -147,22 +128,19 @@ internal class DbcExtractor
         {
             foreach (var mpqFile in mpqArchive.Where(x => x.Filename is not null).Where(x => x.Filename.EndsWith(".dbc")))
             {
-                using (var mpqStream = mpqArchive.OpenFile(mpqFile))
-                {
-                    using var fileStream = File.Create(Path.Combine(dbcFolder, Path.GetFileName(mpqFile.Filename)));
-                    mpqStream.CopyTo(fileStream);
-                }
+                using var mpqStream = mpqArchive.OpenFile(mpqFile);
+                using var fileStream = File.Create(Path.Combine(dbcFolder, Path.GetFileName(mpqFile.Filename)));
+                mpqStream.CopyTo(fileStream);
 
+                /*
                 i += 1;
                 if (i % numDiv30 == 0)
                 {
                     Console.Write(".");
                 }
+                */
             }
         }
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(" Done.");
     }
 
 }
