@@ -399,27 +399,4 @@ internal class ExtractorZero : ExtractorBase
         f.Close();
     }
 
-    private static void PrintHeader(StreamWriter w, FileVersionInfo versInfo)
-    {
-        w.WriteLine("// Auto generated file");
-        w.WriteLine("// {0}", DateTime.Now);
-
-        if (versInfo != null)
-        {
-            w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
-            w.WriteLine("// Build: " + versInfo.FilePrivatePart);
-        }
-
-        w.WriteLine();
-    }
-
-    /// <summary>
-    /// Hexadecimal representation of an integer number
-    /// </summary>
-    private static string ToHex(int number)
-    {
-        var hex = "0x" + number.ToString("X");
-        return hex;
-    }
-
 }

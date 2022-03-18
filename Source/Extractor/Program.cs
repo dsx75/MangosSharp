@@ -32,8 +32,8 @@ public class Program
         var wowDirectory = "";
         var outputDirectory = "";
 
-        wowDirectory = @"F:\WoW\Clients\0";
-        outputDirectory = @"F:\WoW\Temp";
+        //wowDirectory = @"F:\WoW\Clients\0";
+        //outputDirectory = @"F:\WoW\Temp";
 
         // TODO Implement proper handling for Exceptions (file not found etc.)
 
