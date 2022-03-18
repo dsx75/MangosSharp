@@ -16,7 +16,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-using Microsoft.VisualBasic;
 using NLog;
 using System;
 using System.Diagnostics;
@@ -178,11 +177,11 @@ public static class Extractors
                             EndNum.Add(LastFieldType, Info[j - 1].Offset + 1);
                             if (LastFieldType.ToLower() == "object")
                             {
-                                w.WriteLine("    {0,-78}", LastFieldType.ToUpper() + "_END = 0x" + Conversion.Hex(Info[j - 1].Offset + Info[j - 1].Size));
+                                w.WriteLine("    {0,-78}", LastFieldType.ToUpper() + "_END = " + ToHex(Info[j - 1].Offset + Info[j - 1].Size));
                             }
                             else
                             {
-                                w.WriteLine("    {0,-78}// 0x{1:X3}", LastFieldType.ToUpper() + "_END = " + BasedOnName + " + 0x" + Conversion.Hex(Info[j - 1].Offset + Info[j - 1].Size), BasedOn + Info[j - 1].Offset + Info[j - 1].Size);
+                                w.WriteLine("    {0,-78}// 0x{1:X3}", LastFieldType.ToUpper() + "_END = " + BasedOnName + " + " + ToHex(Info[j - 1].Offset + Info[j - 1].Size), BasedOn + Info[j - 1].Offset + Info[j - 1].Size);
                             }
 
                             w.WriteLine("}");
@@ -236,18 +235,18 @@ public static class Extractors
 
                     if (BasedOn > 0)
                     {
-                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + BasedOnName + " + 0x" + Conversion.Hex(Info[j].Offset) + ",", BasedOn + Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
+                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + BasedOnName + " + " + ToHex(Info[j].Offset) + ",", BasedOn + Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
                     }
                     else
                     {
-                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = 0x" + Conversion.Hex(Info[j].Offset) + ",", Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
+                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + ToHex(Info[j].Offset) + ",", Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
                     }
                 }
             }
 
             if (!string.IsNullOrEmpty(LastFieldType))
             {
-                w.WriteLine("    {0,-78}// 0x{1:X3}", LastFieldType.ToUpper() + "_END = " + BasedOnName + " + 0x" + Conversion.Hex(Info[^1].Offset + Info[^1].Size), BasedOn + Info[^1].Offset + Info[^1].Size);
+                w.WriteLine("    {0,-78}// 0x{1:X3}", LastFieldType.ToUpper() + "_END = " + BasedOnName + " + " + ToHex(Info[^1].Offset + Info[^1].Size), BasedOn + Info[^1].Offset + Info[^1].Size);
             }
 
             w.WriteLine("}");
@@ -357,11 +356,11 @@ public static class Extractors
             var i = 0;
             while (Names.Count > 0)
             {
-                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + " = 0x" + Conversion.Hex(i) + ",", i);
+                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + " = " + ToHex(i) + ",", i);
                 i += 1;
             }
 
-            w.WriteLine("    {0,-64}// 0x{1:X3}", "SPELL_NO_ERROR = 0x" + Conversion.Hex(255), 255);
+            w.WriteLine("    {0,-64}// 0x{1:X3}", "SPELL_NO_ERROR = " + ToHex(255), 255);
             w.WriteLine("}");
             w.Flush();
         }
@@ -415,7 +414,7 @@ public static class Extractors
             var i = 0;
             while (Names.Count > 0)
             {
-                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + " = 0x" + Conversion.Hex(i) + ",", i);
+                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + " = " + ToHex(i) + ",", i);
                 i += 1;
             }
 
@@ -433,6 +432,15 @@ public static class Extractors
         var result = Utils.SearchInFile(f, s, 0);
         f.Close();
         return result;
+    }
+
+    /// <summary>
+    /// Hexadecimal representation of an integer number
+    /// </summary>
+    private static string ToHex(int number)
+    {
+        var hex = "0x" + number.ToString("X");
+        return hex;
     }
 
 }

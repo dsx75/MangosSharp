@@ -16,7 +16,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-using Microsoft.VisualBasic.CompilerServices;
 using NLog;
 using System;
 using System.Text;
@@ -94,7 +93,7 @@ internal static class Utils
         // Read string
         while (t != 0)
         {
-            r += Conversions.ToString((char)t);
+            r += Convert.ToString((char)t);
             t = (byte)f.ReadByte();
         }
 
@@ -123,7 +122,7 @@ internal static class Utils
             // Read string
             while (t != 0)
             {
-                r += Conversions.ToString((char)t);
+                r += Convert.ToString((char)t);
                 t = (byte)f.ReadByte();
             }
         }
@@ -205,47 +204,47 @@ internal static class Utils
             tmp = "NONE";
         }
 
-        if (Conversions.ToBoolean(iFlags & 1))
+        if (Convert.ToBoolean(iFlags & 1))
         {
             AddFlag(ref tmp, "PUBLIC");
         }
 
-        if (Conversions.ToBoolean(iFlags & 2))
+        if (Convert.ToBoolean(iFlags & 2))
         {
             AddFlag(ref tmp, "PRIVATE");
         }
 
-        if (Conversions.ToBoolean(iFlags & 4))
+        if (Convert.ToBoolean(iFlags & 4))
         {
             AddFlag(ref tmp, "OWNER_ONLY");
         }
 
-        if (Conversions.ToBoolean(iFlags & 8))
+        if (Convert.ToBoolean(iFlags & 8))
         {
             AddFlag(ref tmp, "UNK1");
         }
 
-        if (Conversions.ToBoolean(iFlags & 16))
+        if (Convert.ToBoolean(iFlags & 16))
         {
             AddFlag(ref tmp, "UNK2");
         }
 
-        if (Conversions.ToBoolean(iFlags & 32))
+        if (Convert.ToBoolean(iFlags & 32))
         {
             AddFlag(ref tmp, "UNK3");
         }
 
-        if (Conversions.ToBoolean(iFlags & 64))
+        if (Convert.ToBoolean(iFlags & 64))
         {
             AddFlag(ref tmp, "GROUP_ONLY");
         }
 
-        if (Conversions.ToBoolean(iFlags & 128))
+        if (Convert.ToBoolean(iFlags & 128))
         {
             AddFlag(ref tmp, "UNK5");
         }
 
-        if (Conversions.ToBoolean(iFlags & 256))
+        if (Convert.ToBoolean(iFlags & 256))
         {
             AddFlag(ref tmp, "DYNAMIC");
         }
