@@ -60,17 +60,12 @@ internal abstract class ExtractorBase : IExtractor
 
     public abstract void ExtractUpdateFields();
 
-    protected static void PrintHeader(StreamWriter w, FileVersionInfo versInfo)
+    protected void PrintHeader(StreamWriter w)
     {
         w.WriteLine("// Auto generated file");
         w.WriteLine("// {0}", DateTime.Now);
-
-        if (versInfo != null)
-        {
-            w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
-            w.WriteLine("// Build: " + versInfo.FilePrivatePart);
-        }
-
+        w.WriteLine("// Patch: " + WowClientVersion.FileMajorPart + "." + WowClientVersion.FileMinorPart + "." + WowClientVersion.FileBuildPart);
+        w.WriteLine("// Build: " + WowClientVersion.FilePrivatePart);
         w.WriteLine();
     }
 

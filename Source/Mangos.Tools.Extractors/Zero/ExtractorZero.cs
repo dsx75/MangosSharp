@@ -76,7 +76,7 @@ internal class ExtractorZero : ExtractorBase
             }
 
             logger.Info(string.Format("{0} chat types extracted.", Names.Count));
-            PrintHeader(w, null);
+            PrintHeader(w);
             w.WriteLine("Public Enum ChatMsg");
             w.WriteLine("{");
             var i = 0;
@@ -126,7 +126,7 @@ internal class ExtractorZero : ExtractorBase
             }
 
             logger.Info(string.Format("{0} opcodes extracted.", Names.Count));
-            PrintHeader(w, null);
+            PrintHeader(w);
             w.WriteLine("Public Enum OPCODES");
             w.WriteLine("{");
             var i = 0;
@@ -174,7 +174,7 @@ internal class ExtractorZero : ExtractorBase
             }
 
             logger.Info(string.Format("{0} spell failed reasons extracted.", Names.Count));
-            PrintHeader(w, null);
+            PrintHeader(w);
             w.WriteLine("Public Enum SpellFailedReason");
             w.WriteLine("{");
             var i = 0;
@@ -280,7 +280,7 @@ internal class ExtractorZero : ExtractorBase
             }
 
             logger.Info(string.Format("{0} fields extracted.", Names.Count));
-            PrintHeader(w, null);
+            PrintHeader(w);
             var LastFieldType = "";
             string sName;
             string sField;
