@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+using NLog;
 using System;
 using System.Diagnostics;
 
@@ -26,6 +27,8 @@ namespace Mangos.Tools.Extractors.Common;
 /// </summary>
 internal abstract class ExtractorBase : IExtractor
 {
+    private readonly Logger logger = LogManager.GetCurrentClassLogger();
+
     protected readonly string _wowDirectory;
     protected readonly string _wowClient;
     protected readonly FileVersionInfo _wowClientVersion;

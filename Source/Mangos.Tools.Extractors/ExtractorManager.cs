@@ -19,12 +19,14 @@
 using Mangos.Tools.Extractors.One;
 using Mangos.Tools.Extractors.Two;
 using Mangos.Tools.Extractors.Zero;
+using NLog;
 using System;
 using System.Diagnostics;
 
 namespace Mangos.Tools.Extractors;
 public static class ExtractorManager
 {
+    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// Gets the extractor for the specified WoW installation.

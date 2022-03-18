@@ -17,6 +17,7 @@
 //
 
 using Mangos.Tools.Extractors.Common;
+using NLog;
 using System;
 using System.Diagnostics;
 
@@ -27,6 +28,8 @@ namespace Mangos.Tools.Extractors.Two;
 /// </summary>
 internal class ExtractorTwo : ExtractorBase
 {
+    private readonly Logger logger = LogManager.GetCurrentClassLogger();
+
     public ExtractorTwo(string wowDirectory, string wowClient, FileVersionInfo wowClientVersion, string outputDirectory) :
         base(wowDirectory, wowClient, wowClientVersion, outputDirectory)
     {

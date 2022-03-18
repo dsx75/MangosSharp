@@ -17,6 +17,7 @@
 //
 
 using Mangos.Tools.Extractors.Common;
+using NLog;
 using System;
 using System.Diagnostics;
 
@@ -27,6 +28,8 @@ namespace Mangos.Tools.Extractors.Zero;
 /// </summary>
 internal class ExtractorZero : ExtractorBase
 {
+    private readonly Logger logger = LogManager.GetCurrentClassLogger();
+
     public ExtractorZero(string wowDirectory, string wowClient, FileVersionInfo wowClientVersion, string outputDirectory) :
         base(wowDirectory, wowClient, wowClientVersion, outputDirectory)
     {
@@ -34,7 +37,50 @@ internal class ExtractorZero : ExtractorBase
 
     public override void ExtractChatTypes()
     {
-        throw new NotImplementedException();
+        FileStream f = new(WowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        BinaryReader r1 = new(f);
+        StreamReader r2 = new(f);
+
+        var outputFile = Path.Combine(OutputDirectory, "Global.ChatTypes.cs");
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+        StreamWriter w = new(o);
+        var START = Utils.SearchInFile(f, "CHAT_MSG_RAID_WARNING");
+        if (START == -1)
+        {
+            logger.Error("Wrong offsets!");
+        }
+        else
+        {
+            Stack<string> Names = new();
+            var Last = "";
+            var Offset = START;
+            f.Seek(Offset, SeekOrigin.Begin);
+            while (Last.Length == 0 || Last.Substring(0, 9) == "CHAT_MSG_")
+            {
+                Last = Utils.ReadString(f);
+                if (Last.Length > 10 && Last.Substring(0, 9) == "CHAT_MSG_")
+                {
+                    Names.Push(Last);
+                }
+            }
+
+            logger.Info(string.Format("{0} chat types extracted.", Names.Count));
+            PrintHeader(w, null);
+            w.WriteLine("Public Enum ChatMsg");
+            w.WriteLine("{");
+            var i = 0;
+            while (Names.Count > 0)
+            {
+                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + " = " + ToHex(i) + ",", i);
+                i += 1;
+            }
+
+            w.WriteLine("}");
+            w.Flush();
+        }
+
+        o.Close();
+        f.Close();
     }
 
     public override void ExtractDbcFiles()
@@ -56,4 +102,28 @@ internal class ExtractorZero : ExtractorBase
     {
         throw new NotImplementedException();
     }
+
+    private static void PrintHeader(StreamWriter w, FileVersionInfo versInfo)
+    {
+        w.WriteLine("// Auto generated file");
+        w.WriteLine("// {0}", DateTime.Now);
+
+        if (versInfo != null)
+        {
+            w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
+            w.WriteLine("// Build: " + versInfo.FilePrivatePart);
+        }
+
+        w.WriteLine();
+    }
+
+    /// <summary>
+    /// Hexadecimal representation of an integer number
+    /// </summary>
+    private static string ToHex(int number)
+    {
+        var hex = "0x" + number.ToString("X");
+        return hex;
+    }
+
 }
