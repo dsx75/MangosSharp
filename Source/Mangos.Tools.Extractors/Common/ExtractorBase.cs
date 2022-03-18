@@ -56,7 +56,7 @@ internal abstract class ExtractorBase : IExtractor
 
     public abstract void ExtractOpCodes();
 
-    public abstract void ExtractSpellFailureReasons();
+    public abstract void ExtractSpellFailedReasons();
 
     public abstract void ExtractUpdateFields();
 }

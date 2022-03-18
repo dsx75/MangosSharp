@@ -93,9 +93,53 @@ internal class ExtractorZero : ExtractorBase
         throw new NotImplementedException();
     }
 
-    public override void ExtractSpellFailureReasons()
+    public override void ExtractSpellFailedReasons()
     {
-        throw new NotImplementedException();
+        FileStream f = new(WowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        BinaryReader r1 = new(f);
+        StreamReader r2 = new(f);
+
+        var outputFile = Path.Combine(OutputDirectory, "Global.SpellFailedReasons.cs");
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+        StreamWriter w = new(o);
+        var REASON_NAME_OFFSET = Utils.SearchInFile(f, "SPELL_FAILED_UNKNOWN");
+        if (REASON_NAME_OFFSET == -1)
+        {
+            logger.Error("Wrong offsets!");
+        }
+        else
+        {
+            Stack<string> Names = new();
+            var Last = "";
+            var Offset = REASON_NAME_OFFSET;
+            f.Seek(Offset, SeekOrigin.Begin);
+            while (Last.Length == 0 || Last.Substring(0, 13) == "SPELL_FAILED_")
+            {
+                Last = Utils.ReadString(f);
+                if (Last.Length > 13 && Last.Substring(0, 13) == "SPELL_FAILED_")
+                {
+                    Names.Push(Last);
+                }
+            }
+
+            logger.Info(string.Format("{0} spell failed reasons extracted.", Names.Count));
+            PrintHeader(w, null);
+            w.WriteLine("Public Enum SpellFailedReason");
+            w.WriteLine("{");
+            var i = 0;
+            while (Names.Count > 0)
+            {
+                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + " = " + ToHex(i) + ",", i);
+                i += 1;
+            }
+
+            w.WriteLine("    {0,-64}// 0x{1:X3}", "SPELL_NO_ERROR = " + ToHex(255), 255);
+            w.WriteLine("}");
+            w.Flush();
+        }
+
+        o.Close();
+        f.Close();
     }
 
     public override void ExtractUpdateFields()

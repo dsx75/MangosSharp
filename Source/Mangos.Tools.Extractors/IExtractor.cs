@@ -43,6 +43,6 @@ public interface IExtractor
 
     void ExtractUpdateFields();
 
-    void ExtractSpellFailureReasons();
+    void ExtractSpellFailedReasons();
 
 }

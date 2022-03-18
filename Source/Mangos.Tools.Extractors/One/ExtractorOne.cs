@@ -50,7 +50,7 @@ internal class ExtractorOne : ExtractorBase
         throw new NotImplementedException();
     }
 
-    public override void ExtractSpellFailureReasons()
+    public override void ExtractSpellFailedReasons()
     {
         throw new NotImplementedException();
     }
