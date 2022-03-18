@@ -136,7 +136,7 @@ public static class Extractors
 
             logger.Info(string.Format("{0} fields extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateAndTime.Now);
+            w.WriteLine("// {0}", DateTime.Now);
             w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
             w.WriteLine("// Build: " + versInfo.FilePrivatePart);
             w.WriteLine();
@@ -293,7 +293,7 @@ public static class Extractors
 
             logger.Info(string.Format("{0} opcodes extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateAndTime.Now);
+            w.WriteLine("// {0}", DateTime.Now);
             w.WriteLine();
             w.WriteLine("Public Enum OPCODES");
             w.WriteLine("{");
@@ -350,7 +350,7 @@ public static class Extractors
 
             logger.Info(string.Format("{0} spell failed reasons extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateAndTime.Now);
+            w.WriteLine("// {0}", DateTime.Now);
             w.WriteLine();
             w.WriteLine("Public Enum SpellFailedReason");
             w.WriteLine("{");
@@ -408,7 +408,7 @@ public static class Extractors
 
             logger.Info(string.Format("{0} chat types extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateAndTime.Now);
+            w.WriteLine("// {0}", DateTime.Now);
             w.WriteLine();
             w.WriteLine("Public Enum ChatMsg");
             w.WriteLine("{");
