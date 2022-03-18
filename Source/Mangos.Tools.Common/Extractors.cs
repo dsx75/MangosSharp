@@ -134,11 +134,7 @@ public static class Extractors
             }
 
             logger.Info(string.Format("{0} fields extracted.", Names.Count));
-            w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateTime.Now);
-            w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
-            w.WriteLine("// Build: " + versInfo.FilePrivatePart);
-            w.WriteLine();
+            PrintHeader(w, null);
             var LastFieldType = "";
             string sName;
             string sField;
@@ -291,9 +287,7 @@ public static class Extractors
             }
 
             logger.Info(string.Format("{0} opcodes extracted.", Names.Count));
-            w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateTime.Now);
-            w.WriteLine();
+            PrintHeader(w, null);
             w.WriteLine("Public Enum OPCODES");
             w.WriteLine("{");
             var i = 0;
@@ -348,9 +342,7 @@ public static class Extractors
             }
 
             logger.Info(string.Format("{0} spell failed reasons extracted.", Names.Count));
-            w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateTime.Now);
-            w.WriteLine();
+            PrintHeader(w, null);
             w.WriteLine("Public Enum SpellFailedReason");
             w.WriteLine("{");
             var i = 0;
@@ -406,9 +398,7 @@ public static class Extractors
             }
 
             logger.Info(string.Format("{0} chat types extracted.", Names.Count));
-            w.WriteLine("// Auto generated file");
-            w.WriteLine("// {0}", DateTime.Now);
-            w.WriteLine();
+            PrintHeader(w, null);
             w.WriteLine("Public Enum ChatMsg");
             w.WriteLine("{");
             var i = 0;
@@ -432,6 +422,20 @@ public static class Extractors
         var result = Utils.SearchInFile(f, s, 0);
         f.Close();
         return result;
+    }
+
+    private static void PrintHeader(StreamWriter w, FileVersionInfo versInfo)
+    {
+        w.WriteLine("// Auto generated file");
+        w.WriteLine("// {0}", DateTime.Now);
+
+        if (versInfo != null)
+        {
+            w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
+            w.WriteLine("// Build: " + versInfo.FilePrivatePart);
+        }
+
+        w.WriteLine();
     }
 
     /// <summary>
