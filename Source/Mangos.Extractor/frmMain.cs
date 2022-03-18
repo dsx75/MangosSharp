@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+using Mangos.Tools.Common;
 using System;
 
 namespace Mangos.Extractor;
@@ -33,21 +34,21 @@ public partial class frmMain
 
     private void btnExtractUpdateFields_Click(object sender, EventArgs e)
     {
-        Functions.ExtractUpdateFields();
+        Extractors.ExtractUpdateFields();
     }
 
     private void btnExtractOpcodes_Click(object sender, EventArgs e)
     {
-        Functions.ExtractOpcodes();
+        Extractors.ExtractOpcodes();
     }
 
     private void btnExtractSpellFailedReasons_Click(object sender, EventArgs e)
     {
-        Functions.ExtractSpellFailedReason();
+        Extractors.ExtractSpellFailedReason();
     }
 
     private void btnExtractChatTypes_Click(object sender, EventArgs e)
     {
-        Functions.ExtractChatTypes();
+        Extractors.ExtractChatTypes();
     }
 }

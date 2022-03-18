@@ -18,18 +18,20 @@
 
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
 
-namespace Mangos.Extractor;
+namespace Mangos.Tools.Common;
 
-public static class Functions
+public static class Extractors
 {
+    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
     public static int SearchInFile(Stream f, string s, int o = 0)
     {
         f.Seek(0L, SeekOrigin.Begin);
@@ -129,7 +131,7 @@ public static class Functions
         }
         catch (Exception e)
         {
-            MessageBox.Show("ReadString has thrown an Exception! The string is {0}", e.Message);
+            logger.Error(e, "ReadString has thrown an Exception! The string is {0}", e.Message);
         }
 
         return r;
@@ -288,7 +290,7 @@ public static class Functions
         var OBJECT_FIELD_GUID = SearchInFile(f, "OBJECT_FIELD_GUID") + 0x400000;
         var FIELD_TYPE_OFFSET = SearchInFile(f, OBJECT_FIELD_GUID);
 #if DEBUG
-        MessageBox.Show("FIELD_NAME_OFFSET " + FIELD_NAME_OFFSET + " OBJECT_FIELD_GUID " + OBJECT_FIELD_GUID + " FIELD_TYPE_OFFSET " + FIELD_TYPE_OFFSET);
+        logger.Debug("FIELD_NAME_OFFSET " + FIELD_NAME_OFFSET + " OBJECT_FIELD_GUID " + OBJECT_FIELD_GUID + " FIELD_TYPE_OFFSET " + FIELD_TYPE_OFFSET);
 #endif
         if (FIELD_NAME_OFFSET == -1) // pre 1.5 vanilla support
         {
@@ -307,7 +309,7 @@ public static class Functions
         }
         if (FIELD_NAME_OFFSET == -1 || FIELD_TYPE_OFFSET == -1)
         {
-            MessageBox.Show("Wrong offsets! " + FIELD_NAME_OFFSET + "  " + FIELD_TYPE_OFFSET);
+            logger.Error("Wrong offsets! " + FIELD_NAME_OFFSET + "  " + FIELD_TYPE_OFFSET);
         }
         else
         {
@@ -357,7 +359,7 @@ public static class Functions
                 Info.Add(tmp);
             }
 
-            MessageBox.Show(string.Format("{0} fields extracted.", Names.Count));
+            logger.Info(string.Format("{0} fields extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
             w.WriteLine("// {0}", DateAndTime.Now);
             w.WriteLine("// Patch: " + versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart);
@@ -414,7 +416,7 @@ public static class Functions
                         w.WriteLine("Public Enum E" + sField + "Fields");
                         w.WriteLine("{");
 #if DEBUG
-                        MessageBox.Show("sField: " + sField + "\nsName: " + sName);
+                        logger.Debug("sField: " + sField + "\nsName: " + sName);
 #endif
                         if (TBC == 1) // TBC support
                         {
@@ -488,11 +490,11 @@ public static class Functions
         StreamReader r2 = new(f);
         FileStream o = new("Global.Opcodes.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
-        MessageBox.Show(ReadString(f, SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")));
+        logger.Debug(ReadString(f, SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")));
         var START = SearchInFile(f, "NUM_MSG_TYPES");
         if (START == -1)
         {
-            MessageBox.Show("Wrong offsets!");
+            logger.Error("Wrong offsets!");
         }
         else
         {
@@ -505,7 +507,7 @@ public static class Functions
                 Names.Push(Last);
             }
 
-            MessageBox.Show(string.Format("{0} opcodes extracted.", Names.Count));
+            logger.Info(string.Format("{0} opcodes extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
             w.WriteLine("// {0}", DateAndTime.Now);
             w.WriteLine();
@@ -536,7 +538,7 @@ public static class Functions
         var REASON_NAME_OFFSET = SearchInFile(f, "SPELL_FAILED_UNKNOWN");
         if (REASON_NAME_OFFSET == -1)
         {
-            MessageBox.Show("Wrong offsets!");
+            logger.Error("Wrong offsets!");
         }
         else
         {
@@ -553,7 +555,7 @@ public static class Functions
                 }
             }
 
-            MessageBox.Show(string.Format("{0} spell failed reasons extracted.", Names.Count));
+            logger.Info(string.Format("{0} spell failed reasons extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
             w.WriteLine("// {0}", DateAndTime.Now);
             w.WriteLine();
@@ -585,7 +587,7 @@ public static class Functions
         var START = SearchInFile(f, "CHAT_MSG_RAID_WARNING");
         if (START == -1)
         {
-            MessageBox.Show("Wrong offsets!");
+            logger.Error("Wrong offsets!");
         }
         else
         {
@@ -602,7 +604,7 @@ public static class Functions
                 }
             }
 
-            MessageBox.Show(string.Format("{0} chat types extracted.", Names.Count));
+            logger.Info(string.Format("{0} chat types extracted.", Names.Count));
             w.WriteLine("// Auto generated file");
             w.WriteLine("// {0}", DateAndTime.Now);
             w.WriteLine();
