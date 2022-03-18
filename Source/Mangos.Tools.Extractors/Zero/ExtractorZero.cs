@@ -20,6 +20,7 @@ using Mangos.Tools.Extractors.Common;
 using NLog;
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Mangos.Tools.Extractors.Zero;
 
@@ -33,6 +34,16 @@ internal class ExtractorZero : ExtractorBase
     public ExtractorZero(string wowDirectory, string wowClient, FileVersionInfo wowClientVersion, string outputDirectory) :
         base(wowDirectory, wowClient, wowClientVersion, outputDirectory)
     {
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct TypeEntry
+    {
+        public int Name;
+        public int Offset;
+        public int Size;
+        public int Type;
+        public int Flags;
     }
 
     public override void ExtractChatTypes()
@@ -184,7 +195,208 @@ internal class ExtractorZero : ExtractorBase
 
     public override void ExtractUpdateFields()
     {
-        throw new NotImplementedException();
+        var TBC = 0;
+        var alpha = 0;
+        FileStream f = new(WowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        BinaryReader r1 = new(f);
+        StreamReader r2 = new(f);
+
+        var outputFile = WowClientVersion.FileMajorPart + "." + WowClientVersion.FileMinorPart + "."
+            + WowClientVersion.FileBuildPart + "." + WowClientVersion.FilePrivatePart + "_Global.UpdateFields.cs";
+        outputFile = Path.Combine(OutputDirectory, outputFile);
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+        StreamWriter w = new(o);
+        var FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_PAD");
+        var OBJECT_FIELD_GUID = Utils.SearchInFile(f, "OBJECT_FIELD_GUID") + 0x400000;
+        var FIELD_TYPE_OFFSET = Utils.SearchInFile(f, OBJECT_FIELD_GUID);
+#if DEBUG
+        logger.Debug("FIELD_NAME_OFFSET " + FIELD_NAME_OFFSET + " OBJECT_FIELD_GUID " + OBJECT_FIELD_GUID + " FIELD_TYPE_OFFSET " + FIELD_TYPE_OFFSET);
+#endif
+        if (FIELD_NAME_OFFSET == -1) // pre 1.5 vanilla support
+        {
+            FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_FLAGS");
+        }
+        if (FIELD_NAME_OFFSET == -1) // alpha support
+        {
+            FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_LEVEL");
+            alpha = 1;
+        }
+        if (FIELD_TYPE_OFFSET == -1) // TBC support
+        {
+            OBJECT_FIELD_GUID = Utils.SearchInFile(f, "OBJECT_FIELD_GUID") + 0x1A00 + 0x400000;
+            FIELD_TYPE_OFFSET = Utils.SearchInFile(f, OBJECT_FIELD_GUID);
+            TBC = 1;
+        }
+        if (FIELD_NAME_OFFSET == -1 || FIELD_TYPE_OFFSET == -1)
+        {
+            logger.Error("Wrong offsets! " + FIELD_NAME_OFFSET + "  " + FIELD_TYPE_OFFSET);
+        }
+        else
+        {
+            List<string> Names = new();
+            var Last = "";
+            var Offset = FIELD_NAME_OFFSET;
+            f.Seek(Offset, SeekOrigin.Begin);
+            while (Last != "OBJECT_FIELD_GUID")
+            {
+                Last = Utils.ReadString(f);
+                Names.Add(Last);
+            }
+
+            List<TypeEntry> Info = new();
+            int Temp;
+            var Buffer = new byte[4];
+            Offset = 0;
+            f.Seek(FIELD_TYPE_OFFSET, SeekOrigin.Begin);
+            for (int i = 0, loopTo = Names.Count - 1; i <= loopTo; i++)
+            {
+                f.Seek(FIELD_TYPE_OFFSET + (i * 5 * 4) + Offset, SeekOrigin.Begin);
+                f.Read(Buffer, 0, 4);
+                Temp = BitConverter.ToInt32(Buffer, 0);
+                if (Temp < 0xFFFF)
+                {
+                    i -= 1;
+                    Offset += 4;
+                    continue;
+                }
+
+                TypeEntry tmp = new()
+                {
+                    Name = Temp
+                };
+                f.Read(Buffer, 0, 4);
+                Temp = BitConverter.ToInt32(Buffer, 0);
+                tmp.Offset = Temp;
+                f.Read(Buffer, 0, 4);
+                Temp = BitConverter.ToInt32(Buffer, 0);
+                tmp.Size = Temp;
+                f.Read(Buffer, 0, 4);
+                Temp = BitConverter.ToInt32(Buffer, 0);
+                tmp.Type = Temp;
+                f.Read(Buffer, 0, 4);
+                Temp = BitConverter.ToInt32(Buffer, 0);
+                tmp.Flags = Temp;
+                Info.Add(tmp);
+            }
+
+            logger.Info(string.Format("{0} fields extracted.", Names.Count));
+            PrintHeader(w, null);
+            var LastFieldType = "";
+            string sName;
+            string sField;
+            var BasedOn = 0;
+            var BasedOnName = "";
+            Dictionary<string, int> EndNum = new();
+            for (int j = 0, loopTo1 = Info.Count - 1; j <= loopTo1; j++)
+            {
+                sName = Utils.ReadString(f, Info[j].Name - 0x400000);
+                if (TBC == 1) // TBC support
+                {
+                    sName = Utils.ReadString(f, Info[j].Name - (0x1A00 + 0x400000));
+                }
+                if (!string.IsNullOrEmpty(sName))
+                {
+                    sField = Utils.ToField(sName.Substring(0, sName.IndexOf("_")));
+                    if (sName == "OBJECT_FIELD_CREATED_BY" && alpha == 0)
+                    {
+                        sField = "GameObject";
+                    }
+
+                    if (sName is "UINT_FIELD_BASESTAT0" or // alpha support
+                        "UINT_FIELD_BASESTAT1" or
+                        "UINT_FIELD_BASESTAT2" or
+                        "UINT_FIELD_BASESTAT3" or
+                        "UINT_FIELD_BASESTAT4" or
+                        "UINT_FIELD_BYTES_1")
+                    {
+                        sField = "Unit";
+                    }
+
+                    if ((LastFieldType ?? "") != (sField ?? ""))
+                    {
+                        if (!string.IsNullOrEmpty(LastFieldType))
+                        {
+                            EndNum.Add(LastFieldType, Info[j - 1].Offset + 1);
+                            if (LastFieldType.ToLower() == "object")
+                            {
+                                w.WriteLine("    {0,-78}", LastFieldType.ToUpper() + "_END = " + ToHex(Info[j - 1].Offset + Info[j - 1].Size));
+                            }
+                            else
+                            {
+                                w.WriteLine("    {0,-78}// 0x{1:X3}", LastFieldType.ToUpper() + "_END = " + BasedOnName + " + " + ToHex(Info[j - 1].Offset + Info[j - 1].Size), BasedOn + Info[j - 1].Offset + Info[j - 1].Size);
+                            }
+
+                            w.WriteLine("}");
+                        }
+
+                        w.WriteLine("Public Enum E" + sField + "Fields");
+                        w.WriteLine("{");
+#if DEBUG
+                        logger.Debug("sField: " + sField + "\nsName: " + sName);
+#endif
+                        if (TBC == 1) // TBC support
+                        {
+                            if (sField.ToLower() == "item")
+                            {
+                                BasedOn = EndNum["Container"];
+                                BasedOnName = "EContainerFields.CONTAINER_END";
+                            }
+                            else if (sField.ToLower() == "player")
+                            {
+                                BasedOn = EndNum["Unit"];
+                                BasedOnName = "EUnitFields.UNIT_END";
+                            }
+                            else if (sField.ToLower() != "object")
+                            {
+                                BasedOn = EndNum["Object"];
+                                BasedOnName = "EObjectFields.OBJECT_END";
+                            }
+                        }
+
+                        if (TBC == 0)
+                        {
+                            if (sField.ToLower() == "container")
+                            {
+                                BasedOn = EndNum["Item"];
+                                BasedOnName = "EItemFields.ITEM_END";
+                            }
+                            else if (sField.ToLower() == "player")
+                            {
+                                BasedOn = EndNum["Unit"];
+                                BasedOnName = "EUnitFields.UNIT_END";
+                            }
+                            else if (sField.ToLower() != "object")
+                            {
+                                BasedOn = EndNum["Object"];
+                                BasedOnName = "EObjectFields.OBJECT_END";
+                            }
+                        }
+
+                        LastFieldType = sField;
+                    }
+
+                    if (BasedOn > 0)
+                    {
+                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + BasedOnName + " + " + ToHex(Info[j].Offset) + ",", BasedOn + Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
+                    }
+                    else
+                    {
+                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + ToHex(Info[j].Offset) + ",", Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(LastFieldType))
+            {
+                w.WriteLine("    {0,-78}// 0x{1:X3}", LastFieldType.ToUpper() + "_END = " + BasedOnName + " + " + ToHex(Info[^1].Offset + Info[^1].Size), BasedOn + Info[^1].Offset + Info[^1].Size);
+            }
+
+            w.WriteLine("}");
+            w.Flush();
+        }
+
+        o.Close();
+        f.Close();
     }
 
     private static void PrintHeader(StreamWriter w, FileVersionInfo versInfo)
