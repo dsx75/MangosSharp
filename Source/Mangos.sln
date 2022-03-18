@@ -91,6 +91,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mangos.Common", "Mangos.Com
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mangos.Tools.Common", "Mangos.Tools.Common\Mangos.Tools.Common.csproj", "{C0958A22-9014-4CE5-BCCB-4D4869BBC5D4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mangos.Tools.Extractor", "Mangos.Tools.Extractor\Mangos.Tools.Extractor.csproj", "{077FE692-FD85-4FFC-9B0F-175FFD3FC610}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -221,6 +223,10 @@ Global
 		{C0958A22-9014-4CE5-BCCB-4D4869BBC5D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0958A22-9014-4CE5-BCCB-4D4869BBC5D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0958A22-9014-4CE5-BCCB-4D4869BBC5D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{077FE692-FD85-4FFC-9B0F-175FFD3FC610}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{077FE692-FD85-4FFC-9B0F-175FFD3FC610}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{077FE692-FD85-4FFC-9B0F-175FFD3FC610}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{077FE692-FD85-4FFC-9B0F-175FFD3FC610}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -264,6 +270,7 @@ Global
 		{6D77F314-5722-41F1-839A-026BF782F19C} = {404E091A-3BC2-4F2B-B634-1CC8891405C3}
 		{26F1703D-EDDF-479C-98FF-C48B1FDECB2F} = {E4030417-3F95-48BA-8A9A-6E1B4A5B5873}
 		{C0958A22-9014-4CE5-BCCB-4D4869BBC5D4} = {86D392EB-75DF-4211-A482-1F826079BC6B}
+		{077FE692-FD85-4FFC-9B0F-175FFD3FC610} = {86D392EB-75DF-4211-A482-1F826079BC6B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ADB1D01A-F2D8-411D-8C5E-9B125F8FE64E}
