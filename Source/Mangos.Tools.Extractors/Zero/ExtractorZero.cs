@@ -90,7 +90,47 @@ internal class ExtractorZero : ExtractorBase
 
     public override void ExtractOpCodes()
     {
-        throw new NotImplementedException();
+        FileStream f = new(WowClient, FileMode.Open, FileAccess.Read, FileShare.Read, 10000000);
+        BinaryReader r1 = new(f);
+        StreamReader r2 = new(f);
+
+        var outputFile = Path.Combine(OutputDirectory, "Global.Opcodes.cs");
+        FileStream o = new(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 1024);
+        StreamWriter w = new(o);
+        logger.Debug(Utils.ReadString(f, Utils.SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")));
+        var START = Utils.SearchInFile(f, "NUM_MSG_TYPES");
+        if (START == -1)
+        {
+            logger.Error("Wrong offsets!");
+        }
+        else
+        {
+            Stack<string> Names = new();
+            var Last = "";
+            f.Seek(START, SeekOrigin.Begin);
+            while (Last != "MSG_NULL_ACTION")
+            {
+                Last = Utils.ReadString(f);
+                Names.Push(Last);
+            }
+
+            logger.Info(string.Format("{0} opcodes extracted.", Names.Count));
+            PrintHeader(w, null);
+            w.WriteLine("Public Enum OPCODES");
+            w.WriteLine("{");
+            var i = 0;
+            while (Names.Count > 0)
+            {
+                w.WriteLine("    {0,-64}// 0x{1:X3}", Names.Pop() + "=" + i, i);
+                i += 1;
+            }
+
+            w.WriteLine("}");
+            w.Flush();
+        }
+
+        o.Close();
+        f.Close();
     }
 
     public override void ExtractSpellFailedReasons()
