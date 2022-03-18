@@ -38,6 +38,11 @@ public static class ExtractorManager
     {
         var wowClient = Path.Combine(wowDirectory, "wow.exe");
 
+        if (!File.Exists(wowClient))
+        {
+            throw new FileNotFoundException("No WoW client found at " + wowClient);
+        }
+
         FileVersionInfo ver = FileVersionInfo.GetVersionInfo(wowClient);
 
         // TODO add all supported combinations
