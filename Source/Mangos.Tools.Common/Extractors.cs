@@ -32,231 +32,8 @@ public static class Extractors
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-    public static int SearchInFile(Stream f, string s, int o = 0)
-    {
-        f.Seek(0L, SeekOrigin.Begin);
-        BinaryReader r = new(f);
-        var b1 = r.ReadBytes((int)f.Length);
-        var b2 = Encoding.ASCII.GetBytes(s);
-        for (int i = o, loopTo = b1.Length - 1; i <= loopTo; i++)
-        {
-            for (int j = 0, loopTo1 = b2.Length - 1; j <= loopTo1; j++)
-            {
-                if (b1[i + j] != b2[j])
-                {
-                    break;
-                }
-
-                if (j == b2.Length - 1)
-                {
-                    return i;
-                }
-            }
-        }
-
-        return -1;
-    }
-
-    public static int SearchInFile(Stream f, int v)
-    {
-        f.Seek(0L, SeekOrigin.Begin);
-        BinaryReader r = new(f);
-        var b1 = r.ReadBytes((int)f.Length);
-        var b2 = BitConverter.GetBytes(v);
-        // Array.Reverse(b2)
-
-        for (int i = 0, loopTo = b1.Length - 1; i <= loopTo; i++)
-        {
-            if (i + 3 >= b1.Length)
-            {
-                break;
-            }
-
-            if (b1[i] == b2[0] && b1[i + 1] == b2[1] && b1[i + 2] == b2[2] && b1[i + 3] == b2[3])
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    public static string ReadString(FileStream f)
-    {
-        var r = "";
-        byte t;
-
-        // Read if there are zeros
-        t = (byte)f.ReadByte();
-        while (t == 0)
-        {
-            t = (byte)f.ReadByte();
-        }
-
-        // Read string
-        while (t != 0)
-        {
-            r += Conversions.ToString((char)t);
-            t = (byte)f.ReadByte();
-        }
-
-        return r;
-    }
-
-    public static string ReadString(FileStream f, long pos)
-    {
-        var r = "";
-        byte t;
-        if (pos == -1)
-        {
-            return "*Nothing*";
-        }
-
-        f.Seek(pos, SeekOrigin.Begin);
-        try
-        {
-            // Read if there are zeros
-            t = (byte)f.ReadByte();
-            while (t == 0)
-            {
-                t = (byte)f.ReadByte();
-            }
-
-            // Read string
-            while (t != 0)
-            {
-                r += Conversions.ToString((char)t);
-                t = (byte)f.ReadByte();
-            }
-        }
-        catch (Exception e)
-        {
-            logger.Error(e, "ReadString has thrown an Exception! The string is {0}", e.Message);
-        }
-
-        return r;
-    }
-
-    public static string ToField(string sField)
-    {
-        // Make the first letter in upper case and the rest in lower case
-        var tmp = sField.Substring(0, 1).ToUpper() + sField[1..].ToLower();
-        // Replace lowercase object with Object (used in f.ex Gameobject -> GameObject)
-        if (tmp.IndexOf("object", StringComparison.OrdinalIgnoreCase) > 0)
-        {
-            tmp = tmp.Length > tmp.IndexOf("object", StringComparison.OrdinalIgnoreCase) + 6
-                ? tmp.Substring(0, tmp.IndexOf("object")) + "Object" + tmp[(tmp.IndexOf("object") + 6)..]
-                : tmp.Substring(0, tmp.IndexOf("object")) + "Object";
-        }
-
-        return tmp;
-    }
-
-    public static string ToType(int iType)
-    {
-        // Get the typename
-        switch (iType)
-        {
-            case 1:
-                {
-                    return "INT";
-                }
-
-            case 2:
-                {
-                    return "TWO_SHORT";
-                }
-
-            case 3:
-                {
-                    return "FLOAT";
-                }
-
-            case 4:
-                {
-                    return "GUID";
-                }
-
-            case 5:
-                {
-                    return "BYTES";
-                }
-
-            default:
-                {
-                    return "UNK (" + iType + ")";
-                }
-        }
-    }
-
-    private static void AddFlag(ref string sFlags, string sFlag)
-    {
-        if (!string.IsNullOrEmpty(sFlags))
-        {
-            sFlags += " + ";
-        }
-
-        sFlags += sFlag;
-    }
-
-    public static string ToFlags(int iFlags)
-    {
-        var tmp = "";
-        if (iFlags == 0)
-        {
-            tmp = "NONE";
-        }
-
-        if (Conversions.ToBoolean(iFlags & 1))
-        {
-            AddFlag(ref tmp, "PUBLIC");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 2))
-        {
-            AddFlag(ref tmp, "PRIVATE");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 4))
-        {
-            AddFlag(ref tmp, "OWNER_ONLY");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 8))
-        {
-            AddFlag(ref tmp, "UNK1");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 16))
-        {
-            AddFlag(ref tmp, "UNK2");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 32))
-        {
-            AddFlag(ref tmp, "UNK3");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 64))
-        {
-            AddFlag(ref tmp, "GROUP_ONLY");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 128))
-        {
-            AddFlag(ref tmp, "UNK5");
-        }
-
-        if (Conversions.ToBoolean(iFlags & 256))
-        {
-            AddFlag(ref tmp, "DYNAMIC");
-        }
-
-        return tmp;
-    }
-
     [StructLayout(LayoutKind.Sequential)]
-    public struct TypeEntry
+    private struct TypeEntry
     {
         public int Name;
         public int Offset;
@@ -265,7 +42,7 @@ public static class Extractors
         public int Flags;
     }
 
-    public enum Types
+    private enum Types
     {
         NULL,
         Int32,
@@ -286,25 +63,25 @@ public static class Extractors
         StreamReader r2 = new(f);
         FileStream o = new(versInfo.FileMajorPart + "." + versInfo.FileMinorPart + "." + versInfo.FileBuildPart + "." + versInfo.FilePrivatePart + "_Global.UpdateFields.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
-        var FIELD_NAME_OFFSET = SearchInFile(f, "CORPSE_FIELD_PAD");
-        var OBJECT_FIELD_GUID = SearchInFile(f, "OBJECT_FIELD_GUID") + 0x400000;
-        var FIELD_TYPE_OFFSET = SearchInFile(f, OBJECT_FIELD_GUID);
+        var FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_PAD");
+        var OBJECT_FIELD_GUID = Utils.SearchInFile(f, "OBJECT_FIELD_GUID") + 0x400000;
+        var FIELD_TYPE_OFFSET = Utils.SearchInFile(f, OBJECT_FIELD_GUID);
 #if DEBUG
         logger.Debug("FIELD_NAME_OFFSET " + FIELD_NAME_OFFSET + " OBJECT_FIELD_GUID " + OBJECT_FIELD_GUID + " FIELD_TYPE_OFFSET " + FIELD_TYPE_OFFSET);
 #endif
         if (FIELD_NAME_OFFSET == -1) // pre 1.5 vanilla support
         {
-            FIELD_NAME_OFFSET = SearchInFile(f, "CORPSE_FIELD_FLAGS");
+            FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_FLAGS");
         }
         if (FIELD_NAME_OFFSET == -1) // alpha support
         {
-            FIELD_NAME_OFFSET = SearchInFile(f, "CORPSE_FIELD_LEVEL");
+            FIELD_NAME_OFFSET = Utils.SearchInFile(f, "CORPSE_FIELD_LEVEL");
             alpha = 1;
         }
         if (FIELD_TYPE_OFFSET == -1) // TBC support
         {
-            OBJECT_FIELD_GUID = SearchInFile(f, "OBJECT_FIELD_GUID") + 0x1A00 + 0x400000;
-            FIELD_TYPE_OFFSET = SearchInFile(f, OBJECT_FIELD_GUID);
+            OBJECT_FIELD_GUID = Utils.SearchInFile(f, "OBJECT_FIELD_GUID") + 0x1A00 + 0x400000;
+            FIELD_TYPE_OFFSET = Utils.SearchInFile(f, OBJECT_FIELD_GUID);
             TBC = 1;
         }
         if (FIELD_NAME_OFFSET == -1 || FIELD_TYPE_OFFSET == -1)
@@ -319,7 +96,7 @@ public static class Extractors
             f.Seek(Offset, SeekOrigin.Begin);
             while (Last != "OBJECT_FIELD_GUID")
             {
-                Last = ReadString(f);
+                Last = Utils.ReadString(f);
                 Names.Add(Last);
             }
 
@@ -373,14 +150,14 @@ public static class Extractors
             Dictionary<string, int> EndNum = new();
             for (int j = 0, loopTo1 = Info.Count - 1; j <= loopTo1; j++)
             {
-                sName = ReadString(f, Info[j].Name - 0x400000);
+                sName = Utils.ReadString(f, Info[j].Name - 0x400000);
                 if (TBC == 1) // TBC support
                 {
-                    sName = ReadString(f, Info[j].Name - (0x1A00 + 0x400000));
+                    sName = Utils.ReadString(f, Info[j].Name - (0x1A00 + 0x400000));
                 }
                 if (!string.IsNullOrEmpty(sName))
                 {
-                    sField = ToField(sName.Substring(0, sName.IndexOf("_")));
+                    sField = Utils.ToField(sName.Substring(0, sName.IndexOf("_")));
                     if (sName == "OBJECT_FIELD_CREATED_BY" && alpha == 0)
                     {
                         sField = "GameObject";
@@ -461,11 +238,11 @@ public static class Extractors
 
                     if (BasedOn > 0)
                     {
-                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + BasedOnName + " + 0x" + Conversion.Hex(Info[j].Offset) + ",", BasedOn + Info[j].Offset, Info[j].Size, ToType(Info[j].Type), ToFlags(Info[j].Flags));
+                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = " + BasedOnName + " + 0x" + Conversion.Hex(Info[j].Offset) + ",", BasedOn + Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
                     }
                     else
                     {
-                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = 0x" + Conversion.Hex(Info[j].Offset) + ",", Info[j].Offset, Info[j].Size, ToType(Info[j].Type), ToFlags(Info[j].Flags));
+                        w.WriteLine("    {0,-78}// 0x{1:X3} - Size: {2} - Type: {3} - Flags: {4}", sName + " = 0x" + Conversion.Hex(Info[j].Offset) + ",", Info[j].Offset, Info[j].Size, Utils.ToType(Info[j].Type), Utils.ToFlags(Info[j].Flags));
                     }
                 }
             }
@@ -490,8 +267,8 @@ public static class Extractors
         StreamReader r2 = new(f);
         FileStream o = new("Global.Opcodes.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
-        logger.Debug(ReadString(f, SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")));
-        var START = SearchInFile(f, "NUM_MSG_TYPES");
+        logger.Debug(Utils.ReadString(f, Utils.SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")));
+        var START = Utils.SearchInFile(f, "NUM_MSG_TYPES");
         if (START == -1)
         {
             logger.Error("Wrong offsets!");
@@ -503,7 +280,7 @@ public static class Extractors
             f.Seek(START, SeekOrigin.Begin);
             while (Last != "MSG_NULL_ACTION")
             {
-                Last = ReadString(f);
+                Last = Utils.ReadString(f);
                 Names.Push(Last);
             }
 
@@ -535,7 +312,7 @@ public static class Extractors
         StreamReader r2 = new(f);
         FileStream o = new("Global.SpellFailedReasons.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
-        var REASON_NAME_OFFSET = SearchInFile(f, "SPELL_FAILED_UNKNOWN");
+        var REASON_NAME_OFFSET = Utils.SearchInFile(f, "SPELL_FAILED_UNKNOWN");
         if (REASON_NAME_OFFSET == -1)
         {
             logger.Error("Wrong offsets!");
@@ -548,7 +325,7 @@ public static class Extractors
             f.Seek(Offset, SeekOrigin.Begin);
             while (Last.Length == 0 || Last.Substring(0, 13) == "SPELL_FAILED_")
             {
-                Last = ReadString(f);
+                Last = Utils.ReadString(f);
                 if (Last.Length > 13 && Last.Substring(0, 13) == "SPELL_FAILED_")
                 {
                     Names.Push(Last);
@@ -584,7 +361,7 @@ public static class Extractors
         StreamReader r2 = new(f);
         FileStream o = new("Global.ChatTypes.cs", FileMode.Create, FileAccess.Write, FileShare.None, 1024);
         StreamWriter w = new(o);
-        var START = SearchInFile(f, "CHAT_MSG_RAID_WARNING");
+        var START = Utils.SearchInFile(f, "CHAT_MSG_RAID_WARNING");
         if (START == -1)
         {
             logger.Error("Wrong offsets!");
@@ -597,7 +374,7 @@ public static class Extractors
             f.Seek(Offset, SeekOrigin.Begin);
             while (Last.Length == 0 || Last.Substring(0, 9) == "CHAT_MSG_")
             {
-                Last = ReadString(f);
+                Last = Utils.ReadString(f);
                 if (Last.Length > 10 && Last.Substring(0, 9) == "CHAT_MSG_")
                 {
                     Names.Push(Last);
