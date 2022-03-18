@@ -45,6 +45,11 @@ internal class ExtractorTwo : ExtractorBase
         throw new NotImplementedException();
     }
 
+    public override void ExtractMaps()
+    {
+        throw new NotImplementedException();
+    }
+
     public override void ExtractOpCodes()
     {
         throw new NotImplementedException();

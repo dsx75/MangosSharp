@@ -45,4 +45,6 @@ public interface IExtractor
 
     void ExtractSpellFailedReasons();
 
+    void ExtractMaps();
+
 }

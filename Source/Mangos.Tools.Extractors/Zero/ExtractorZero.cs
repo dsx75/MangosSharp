@@ -399,4 +399,8 @@ internal class ExtractorZero : ExtractorBase
         f.Close();
     }
 
+    public override void ExtractMaps()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -62,6 +62,8 @@ internal abstract class ExtractorBase : IExtractor
 
     public abstract void ExtractUpdateFields();
 
+    public abstract void ExtractMaps();
+
     protected void PrintHeader(StreamWriter w)
     {
         w.WriteLine("// Auto generated file");
